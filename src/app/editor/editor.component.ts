@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import * as monaco from 'monaco-editor';
+import { BenchmarkService } from '../benchmark.service';
 
 
 @Component({
@@ -9,25 +10,36 @@ import * as monaco from 'monaco-editor';
 })
 export class EditorComponent implements OnInit {
   private editor!: monaco.editor.IStandaloneCodeEditor;
-  constructor() { }
+
+  public editorOptions = {language: 'javascript', mouseWheelZoom: true, minimap: {enabled: false}, automaticLayout: true};
+  public code: string= 'for(let i = 0; i < 100; i++) {\n    console.log("Hello world!");\n}';
+
+  constructor(private benchmark: BenchmarkService) { }
 
   ngOnInit(): void {
     monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
       noSyntaxValidation: false,
     });
+    this.benchmark.source = this.code;
+
+    this.benchmark.onResults.subscribe(() => {
+      this.onResize();
+    });
   }
 
-  public editorOptions = {language: 'javascript', mouseWheelZoom: true, minimap: {enabled: false}};
-  public code: string= 'function x() {\n    console.log("Hello world!");\n}';
   onInit(editor: monaco.editor.IStandaloneCodeEditor) {
     this.editor = editor;
     this.editor.focus();
-    
   }
 
   onChange(value: string){
-    
+    this.benchmark.source = value;
+  }
+
+  onResize(){
+    console.log("resize");
+    this.editor.layout();
   }
 
 }

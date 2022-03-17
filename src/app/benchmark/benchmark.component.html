@@ -1,0 +1,33 @@
+<div class="container">
+    <nav>
+        <button mat-raised-button color="primary" (click)="onRunClicked()">run</button>
+        <mat-form-field appearance="standard" class="interation-count-input">
+            <mat-label>interation count</mat-label>
+            <input matInput placeholder="interation count" [(ngModel)]="iterationCount" type="number" min="1">
+        </mat-form-field>
+    </nav>
+    <div class="main" [ngClass]="{'resultsShown': showResults}">
+        <app-editor></app-editor>
+        <div class="results" *ngIf="showResults">
+            <mat-divider vertical="true"></mat-divider>
+            <div class="results-header">
+                <h2>
+                    Results
+                </h2>
+                <button mat-icon-button color="warn" (click)="showResults = false;">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <div class="results-content">
+                <div>
+                    <span>Average: </span>
+                    <span>{{benchmarkResults.average}}</span>
+                </div>
+                <div>
+                    <span>Median: </span>
+                    <span>{{benchmarkResults.median}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
