@@ -16,6 +16,13 @@
         grid-template-columns: minmax(150px, 15%) auto 1fr auto;
         .codeBlocksLabels {
             width: max(100%, 150px);
+            .editable {
+                padding: 0.2rem 0 0.2rem 0.2rem;
+                user-select: none;
+                &[contenteditable=true] {
+                    cursor: text;
+                }
+            }
         }
         .app-editor {
             width: max(100%, 300px);

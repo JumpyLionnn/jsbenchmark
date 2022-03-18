@@ -1,4 +1,5 @@
 interface CodeBlock {
-    name: string
+    name: string,
+    renaming: boolean
 }
 export default CodeBlock;

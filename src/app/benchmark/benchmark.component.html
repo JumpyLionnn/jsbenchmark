@@ -12,16 +12,16 @@
                 <button mat-icon-button color="primary" (click)="addCodeBlock()">
                     <mat-icon>add</mat-icon>
                 </button>
-                <!-- <button mat-icon-button color="primary" (click)="renameSelectedCodeBlock()">
+                <button mat-icon-button color="primary" (click)="renameSelectedCodeBlock()">
                     <mat-icon>edit</mat-icon>
-                </button> -->
+                </button>
                 <button mat-icon-button color="warn" (click)="removeSelectedCodeBlock()" [disabled]="codeBlocksLabels.length === 1">
                     <mat-icon>delete</mat-icon>
                 </button>
             </div>
             <mat-selection-list #blocks [multiple]="false" (selectionChange)="onCodeBlockChanges($event)">
-                <mat-list-option *ngFor="let label of codeBlocksLabels; index as i;" [value]="i" selected="i == 0">
-                    {{label.name}}
+                <mat-list-option *ngFor="let label of codeBlocksLabels; index as i;" [value]="i" selected="i == 0" (dblclick)="renameSelectedCodeBlock()">
+                    <span [attr.contenteditable]="label.renaming" (keydown)="onKeyDown($event);" (blur)="submitCodeBlockName($event);" class="editable">{{label.name}}</span>
                 </mat-list-option>
             </mat-selection-list>
         </div>

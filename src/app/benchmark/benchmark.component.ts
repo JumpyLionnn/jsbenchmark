@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatSelectionList, MatSelectionListChange } from '@angular/material/list';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -16,7 +16,7 @@ export class BenchmarkComponent implements OnInit {
   public iterationCount: number = 10;
   public showResults: boolean = false;
 
-  public codeBlocksLabels: CodeBlock[] = [{name: "code block 1"}];
+  public codeBlocksLabels: CodeBlock[] = [{name: "code block 1", renaming: false}];
   public selectedIndex = 0;
   private lastCodeBlockId: number = 1;
 
@@ -25,7 +25,7 @@ export class BenchmarkComponent implements OnInit {
   @ViewChild("blocks", {static: true})
   private codeBlocks!: MatSelectionList;
 
-  constructor(private benchmark: BenchmarkService, private dialog: MatDialog) { }
+  constructor(private benchmark: BenchmarkService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) { }
 
   ngOnInit(): void {
   }
@@ -37,7 +37,7 @@ export class BenchmarkComponent implements OnInit {
   }
 
   public addCodeBlock(){
-    this.codeBlocksLabels.splice(++this.selectedIndex, 0, {name: `code block ${++this.lastCodeBlockId}`});
+    this.codeBlocksLabels.splice(++this.selectedIndex, 0, {name: `code block ${++this.lastCodeBlockId}`, renaming: false});
   }
 
   public removeSelectedCodeBlock(){
@@ -62,8 +62,10 @@ export class BenchmarkComponent implements OnInit {
           }
           this.codeBlocksLabels.splice(this.selectedIndex, 1);
           if(this.selectedIndex === 0){
+            const option = this.codeBlocks.options.get(1)!;
             // TODO: on selecting this one it is not marking it as selected in the view
             this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(1)!);
+            option.focus();
           }
           else{
             this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(--this.selectedIndex)!);
@@ -73,8 +75,40 @@ export class BenchmarkComponent implements OnInit {
     }
   }
 
+  
+
   public renameSelectedCodeBlock(){
-    // TODO
+    this.codeBlocksLabels[this.selectedIndex].renaming = true;
+    this.changeDetector.detectChanges();
+    const option = this.codeBlocks.options.get(this.selectedIndex)!;
+    option.disableRipple = true;
+    const editableSpan = <HTMLSpanElement>option._text.nativeElement.childNodes[0];
+    editableSpan.focus();
+    // moving careto to the end
+    const range = document.createRange()
+    const selection = window.getSelection()
+    
+    range.selectNodeContents(editableSpan);
+    range.collapse(false);
+    
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  }
+
+  public onKeyDown(e: KeyboardEvent){
+    if(e.key === "Enter"){
+      this.submitCodeBlockName(e);
+      e.preventDefault();
+    }
+  }
+
+  public submitCodeBlockName(e: Event){
+    if(this.codeBlocksLabels[this.selectedIndex].renaming){
+      this.codeBlocksLabels[this.selectedIndex].renaming = false;
+      this.codeBlocksLabels[this.selectedIndex].name = (<HTMLSpanElement>e.target).innerText;
+      const option = this.codeBlocks.options.get(this.selectedIndex)!;
+      option.disableRipple = false;
+    }
   }
 
   public onCodeBlockChanges(e: MatSelectionListChange){
