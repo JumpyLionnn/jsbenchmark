@@ -16,16 +16,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { BenchmarkResultsComponent } from './benchmark-results/benchmark-results.component';
+import { DeleteDialogComponent } from './benchmark/delete-dialog/delete-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     EditorComponent,
     BenchmarkComponent,
-    BenchmarkResultsComponent
+    BenchmarkResultsComponent,
+    DeleteDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -41,7 +44,8 @@ import { BenchmarkResultsComponent } from './benchmark-results/benchmark-results
     MatIconModule,
     MatDividerModule,
     MatListModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]
