@@ -7,7 +7,30 @@
         </mat-form-field>
     </nav>
     <div class="main" [ngClass]="{'resultsShown': showResults}">
-        <app-editor></app-editor>
+        <div class="codeBlocksLabels">
+            <div>
+                <button mat-icon-button color="primary" (click)="addCodeBlock()">
+                    <mat-icon>add</mat-icon>
+                </button>
+                <!-- <button mat-icon-button color="primary" (click)="renameSelectedCodeBlock()">
+                    <mat-icon>edit</mat-icon>
+                </button> -->
+                <button mat-icon-button color="warn" (click)="removeSelectedCodeBlock()" [disabled]="codeBlocksLabels.length === 1">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+            <mat-selection-list #blocks [multiple]="false" (selectionChange)="onCodeBlockChanges($event)">
+                <mat-list-option *ngFor="let label of codeBlocksLabels; index as i;" [value]="i" selected="i == 0">
+                    {{label.name}}
+                </mat-list-option>
+            </mat-selection-list>
+        </div>
+        <mat-divider vertical="true"></mat-divider>
+        <div class="app-editor">
+            <ng-template ngFor let-item [ngForOf]="codeBlocksLabels" let-i="index">
+                <app-editor [ngClass]="{'display-none': i != selectedIndex}" [index]="i"></app-editor>
+            </ng-template>
+        </div>
         <div class="results" *ngIf="showResults">
             <mat-divider vertical="true"></mat-divider>
             <div class="results-header">
@@ -19,15 +42,7 @@
                 </button>
             </div>
             <div class="results-content">
-                <div>
-                    <span>Average: </span>
-                    <span>{{benchmarkResults.average}}</span>
-                </div>
-                <div>
-                    <span>Median: </span>
-                    <span>{{benchmarkResults.median}}</span>
-                </div>
+                <app-benchmark-results [benchmarkResults]="benchmarkResults" [labels]="codeBlocksLabels"></app-benchmark-results>
             </div>
         </div>
     </div>
-</div>

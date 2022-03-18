@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, OnInit } from '@angular/core';
 import * as monaco from 'monaco-editor';
 import { BenchmarkService } from '../benchmark.service';
 
@@ -8,11 +8,14 @@ import { BenchmarkService } from '../benchmark.service';
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss']
 })
-export class EditorComponent implements OnInit {
+export class EditorComponent implements OnInit, OnChanges {
   private editor!: monaco.editor.IStandaloneCodeEditor;
 
   public editorOptions = {language: 'javascript', mouseWheelZoom: true, minimap: {enabled: false}, automaticLayout: true};
   public code: string= 'for(let i = 0; i < 100; i++) {\n    console.log("Hello world!");\n}';
+
+  @Input()
+  public index!: number;
 
   constructor(private benchmark: BenchmarkService) { }
 
@@ -21,11 +24,15 @@ export class EditorComponent implements OnInit {
       noSemanticValidation: false,
       noSyntaxValidation: false,
     });
-    this.benchmark.source = this.code;
+    this.onChange(this.code);
 
     this.benchmark.onResults.subscribe(() => {
       this.onResize();
     });
+  }
+
+  ngOnChanges() {
+    this.onChange(this.editor?.getValue() ?? "");
   }
 
   onInit(editor: monaco.editor.IStandaloneCodeEditor) {
@@ -34,12 +41,12 @@ export class EditorComponent implements OnInit {
   }
 
   onChange(value: string){
-    this.benchmark.source = value;
+    this.benchmark.submit(this.index, value);
   }
 
-  onResize(){
-    console.log("resize");
-    this.editor.layout();
+  @HostListener("window:resize")
+  public onResize(){
+    this.editor.layout({} as monaco.editor.IDimension);
   }
 
 }

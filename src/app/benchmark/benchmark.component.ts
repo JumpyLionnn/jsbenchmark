@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { MatSelectionList, MatSelectionListChange } from '@angular/material/list';
 import { BenchmarkService } from '../benchmark.service';
-import BenchmarkResults from './benchmarkResults';
+import BenchmarkResults from '../benchmarkResults';
+import CodeBlock from '../code-block';
 
 @Component({
   selector: 'app-benchmark',
@@ -10,15 +12,58 @@ import BenchmarkResults from './benchmarkResults';
 export class BenchmarkComponent implements OnInit {
   public iterationCount: number = 10;
   public showResults: boolean = false;
-  public benchmarkResults: BenchmarkResults = {median: 0, average: 0};
-  constructor(private benchmark: BenchmarkService) { }
+
+  public codeBlocksLabels: CodeBlock[] = [{name: "code block 1"}];
+  public selectedIndex = 0;
+  private lastCodeBlockId: number = 1;
+
+  public benchmarkResults: BenchmarkResults = new Map();
+
+  @ViewChild("blocks", {static: true})
+  private codeBlocks!: MatSelectionList;
+
+  constructor(private benchmark: BenchmarkService, private changeDetector: ChangeDetectorRef) { }
 
   ngOnInit(): void {
   }
 
-  public async onRunClicked(){
-    this.benchmarkResults = await this.benchmark.execute(this.iterationCount);
+  public onRunClicked(){
+    this.benchmarkResults = this.benchmark.execute(this.iterationCount);
     this.showResults = true;
+    this.benchmark.onResults.emit();
   }
 
+  public addCodeBlock(){
+    this.codeBlocksLabels.splice(++this.selectedIndex, 0, {name: `code block ${++this.lastCodeBlockId}`});
+  }
+
+  public removeSelectedCodeBlock(){
+    if(this.codeBlocksLabels.length > 1){
+      // deleteing all of the blocks after the deleted index including because after the update all of the editor after will resubmit their content
+      this.benchmarkResults.delete(this.selectedIndex);
+      for(let i = this.selectedIndex; i < this.codeBlocksLabels.length; i++){
+        delete this.benchmark.sources[i];
+        if(this.benchmarkResults.has(i)){
+          this.benchmarkResults.set(i - 1, this.benchmarkResults.get(i)!);
+          this.benchmarkResults.delete(i);
+        }
+      }
+      this.codeBlocksLabels.splice(this.selectedIndex, 1);
+      if(this.selectedIndex === 0){
+        // TODO: on selecting this one it is not marking it as selected in the view
+        this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(1)!);
+      }
+      else{
+        this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(--this.selectedIndex)!);
+      }
+    }
+  }
+
+  public renameSelectedCodeBlock(){
+    // TODO
+  }
+
+  public onCodeBlockChanges(e: MatSelectionListChange){
+    this.selectedIndex = e.options[0].value;
+  }
 }

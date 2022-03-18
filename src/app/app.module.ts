@@ -14,14 +14,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatListModule } from '@angular/material/list';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { BenchmarkResultsComponent } from './benchmark-results/benchmark-results.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     EditorComponent,
-    BenchmarkComponent
+    BenchmarkComponent,
+    BenchmarkResultsComponent
   ],
   imports: [
     BrowserModule,
@@ -35,7 +39,9 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatDividerModule
+    MatDividerModule,
+    MatListModule,
+    MatExpansionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

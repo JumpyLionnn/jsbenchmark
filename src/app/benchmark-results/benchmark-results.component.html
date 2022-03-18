@@ -1,0 +1,27 @@
+<div *ngFor="let result of benchmarkResults | keyvalue">
+    <h3>{{labels[result.key].name}}</h3>
+    <div *ngIf="result.value.error == undefined">
+        <div>
+            <span>Average: {{result.value.average}}s</span>
+        </div>
+        <div>
+            <span>Median: {{result.value.median}}s</span>
+        </div>
+    </div>
+    <div *ngIf="result.value.error != undefined">
+        <mat-accordion>
+            <mat-expansion-panel class="error">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <span class="error-text">ERROR</span>
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        {{result.value.error.name}}
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <p>{{result.value.error.message}}</p>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+
+</div>
