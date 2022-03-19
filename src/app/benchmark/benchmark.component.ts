@@ -31,9 +31,12 @@ export class BenchmarkComponent implements OnInit {
   }
 
   public onRunClicked(){
-    this.benchmarkResults = this.benchmark.execute(1000); // hardcoded for now
-    this.showResults = true;
-    this.benchmark.onResults.emit();
+    const result = this.benchmark.execute(1000); // hardcoded for now
+    if(result !== null){
+      this.benchmarkResults = result;
+      this.showResults = true;
+      this.benchmark.onResults.emit();
+    }
   }
 
   public addCodeBlock(){
@@ -41,38 +44,36 @@ export class BenchmarkComponent implements OnInit {
   }
 
   public removeSelectedCodeBlock(){
-    if(this.codeBlocksLabels.length > 1){
-      // making a dialog to make sure the user want to delete it
-      const dialogRef = this.dialog.open(DeleteDialogComponent, {
-        data: {
-          codeBlockName: this.codeBlocksLabels[this.selectedIndex].name
-        }
-      });
+    // making a dialog to make sure the user want to delete it
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        codeBlockName: this.codeBlocksLabels[this.selectedIndex].name
+      }
+    });
 
-      dialogRef.afterClosed().subscribe(result => {
-        if(result){ // if the user chose to delete
-          // deleteing all of the blocks after the deleted index including because after the update all of the editor after will resubmit their content
-          this.benchmarkResults.results.delete(this.selectedIndex);
-          for(let i = this.selectedIndex; i < this.codeBlocksLabels.length; i++){
-            delete this.benchmark.sources[i];
-            if(this.benchmarkResults.results.has(i)){
-              this.benchmarkResults.results.set(i - 1, this.benchmarkResults.results.get(i)!);
-              this.benchmarkResults.results.delete(i);
-            }
-          }
-          this.codeBlocksLabels.splice(this.selectedIndex, 1);
-          if(this.selectedIndex === 0){
-            const option = this.codeBlocks.options.get(1)!;
-            // TODO: on selecting this one it is not marking it as selected in the view
-            this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(1)!);
-            option.focus();
-          }
-          else{
-            this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(--this.selectedIndex)!);
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){ // if the user chose to delete
+        // deleteing all of the blocks after the deleted index including because after the update all of the editor after will resubmit their content
+        this.benchmarkResults.results.delete(this.selectedIndex);
+        for(let i = this.selectedIndex; i < this.codeBlocksLabels.length; i++){
+          delete this.benchmark.sources[i];
+          if(this.benchmarkResults.results.has(i)){
+            this.benchmarkResults.results.set(i - 1, this.benchmarkResults.results.get(i)!);
+            this.benchmarkResults.results.delete(i);
           }
         }
-      });
-    }
+        this.codeBlocksLabels.splice(this.selectedIndex, 1);
+        if(this.selectedIndex === 0){
+          const option = this.codeBlocks.options.get(1)!;
+          // TODO: on selecting this one it is not marking it as selected in the view
+          this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(1)!);
+          option.focus();
+        }
+        else{
+          this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(--this.selectedIndex)!);
+        }
+      }
+    });
   }
 
   

@@ -1,33 +1,59 @@
 import { EventEmitter, Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import BenchmarkResults from './benchmarkResults';
+import { ErrorAlertComponent } from './error-alert/error-alert.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BenchmarkService {
   public sources: {[index: number]: string} = {};
+  public setup: string = "";
   public onResults: EventEmitter<void> = new EventEmitter();
 
   private iframe?: HTMLIFrameElement;
   private iframeWindow?: Window;
 
-  constructor() { }
+  private error: Error | null = null;
+
+  constructor(private dialog: MatDialog) { }
 
   public submit(index: number, source: string){
     this.sources[index] = source;
   }
 
-  public execute(timePerBlock: number = 1000): BenchmarkResults{
+  public submitSetup(source: string){
+    this.setup = source;
+  }
+
+  public execute(timePerBlock: number = 1000): BenchmarkResults | null{
     if(this.iframe)
       document.body.removeChild(this.iframe);
     this.iframe = document.createElement('iframe');
     this.iframe.style.display = "none";
     this.iframe.id = 'iframe';
     document.body.appendChild(this.iframe);
+    this.error = null;
+
 
     this.iframeWindow = <Window>this.iframe.contentWindow;
 
-    // TODO: add code to inialize stuff before everything like helper functions and some data
+    this.iframeWindow.addEventListener("error", (e) => {
+      this.error = e.error; // for script loading
+      e.preventDefault();
+      return true;
+    });
+
+    const error = this.loadScript(this.setup);
+    if(error !== null){
+      this.dialog.open(ErrorAlertComponent, {
+        data: {
+          title: "script loading failed",
+          message: error.message
+        }
+      });  
+      return null;
+    }
     // TODO: add support for libraries and load them here
 
     let results = new Map<number, {
@@ -68,7 +94,7 @@ export class BenchmarkService {
     return {results, time: sum};
   }
 
-  private loadScript(src: string): Error | void{
+  private loadScript(src: string): Error | null{
     // verifying script
     try {
       new Function(src);
@@ -79,6 +105,10 @@ export class BenchmarkService {
     script.type = "text/javascript";
     script.text = src;
     this.iframeWindow?.document.body.appendChild(script);
+    if(this.error !== null){
+      return this.error;
+    }
+    return null;
   }
 
   private runTestForAmountOfTime(funcName: string, timePerBlock: number) {
@@ -113,6 +143,4 @@ export class BenchmarkService {
     }
     return new Error(JSON.stringify(a));
   }
-
-  
 }

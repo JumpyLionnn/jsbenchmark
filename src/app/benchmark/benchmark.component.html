@@ -12,14 +12,18 @@
                 <button mat-icon-button color="primary" (click)="addCodeBlock()">
                     <mat-icon>add</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" (click)="renameSelectedCodeBlock()">
+                <button mat-icon-button color="primary" (click)="renameSelectedCodeBlock()" [disabled]="selectedIndex < 0">
                     <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="removeSelectedCodeBlock()" [disabled]="codeBlocksLabels.length === 1">
+                <button mat-icon-button color="warn" (click)="removeSelectedCodeBlock()" [disabled]="codeBlocksLabels.length === 1 || selectedIndex < 0">
                     <mat-icon>delete</mat-icon>
                 </button>
             </div>
             <mat-selection-list #blocks [multiple]="false" (selectionChange)="onCodeBlockChanges($event)">
+                <mat-list-option [value]="-1">
+                    <span>Setup block</span>
+                </mat-list-option>
+                <mat-divider class="spaced"></mat-divider>
                 <mat-list-option *ngFor="let label of codeBlocksLabels; index as i;" [value]="i" selected="i == 0" (dblclick)="renameSelectedCodeBlock()">
                     <span [attr.contenteditable]="label.renaming" (keydown)="onKeyDown($event);" (blur)="submitCodeBlockName($event);" class="editable">{{label.name}}</span>
                 </mat-list-option>
@@ -27,12 +31,13 @@
         </div>
         <mat-divider vertical="true"></mat-divider>
         <div class="app-editor">
+            <app-editor [ngClass]="{'display-none': -1 !== selectedIndex}" [type]="'setup'"></app-editor>
             <ng-template ngFor let-item [ngForOf]="codeBlocksLabels" let-i="index">
-                <app-editor [ngClass]="{'display-none': i != selectedIndex}" [index]="i"></app-editor>
+                <app-editor [ngClass]="{'display-none': i !== selectedIndex}" [index]="i"></app-editor>
             </ng-template>
         </div>
         <div class="results" *ngIf="showResults">
-            <mat-divider vertical="true"></mat-divider>
+            <mat-divider vertical="true" class="spaced"></mat-divider>
             <div class="results-header">
                 <h2>
                     Results

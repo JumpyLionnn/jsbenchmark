@@ -21,6 +21,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { BenchmarkResultsComponent } from './benchmark-results/benchmark-results.component';
 import { DeleteDialogComponent } from './benchmark/delete-dialog/delete-dialog.component';
+import { ErrorAlertComponent } from './error-alert/error-alert.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { DeleteDialogComponent } from './benchmark/delete-dialog/delete-dialog.c
     EditorComponent,
     BenchmarkComponent,
     BenchmarkResultsComponent,
-    DeleteDialogComponent
+    DeleteDialogComponent,
+    ErrorAlertComponent
   ],
   imports: [
     BrowserModule,

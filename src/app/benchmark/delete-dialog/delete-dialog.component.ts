@@ -8,13 +8,13 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class DeleteDialogComponent implements OnInit {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public data: DeleteDialogData) { }
 
   ngOnInit(): void {
   }
 
 }
 
-export interface DialogData {
+export interface DeleteDialogData {
   codeBlockName: string;
 }

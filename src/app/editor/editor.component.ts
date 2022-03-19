@@ -15,6 +15,9 @@ export class EditorComponent implements OnInit, OnChanges {
   public code: string= 'console.log("Hello world!");';
 
   @Input()
+  public type: string = "code";
+
+  @Input()
   public index!: number;
 
   constructor(private benchmark: BenchmarkService) { }
@@ -41,7 +44,17 @@ export class EditorComponent implements OnInit, OnChanges {
   }
 
   onChange(value: string){
-    this.benchmark.submit(this.index, value);
+    switch (this.type) {
+      case "code":
+        this.benchmark.submit(this.index, value);
+        break;
+      case "setup":
+        this.benchmark.submitSetup(value);
+        break;
+    
+      default:
+        throw new Error(`no editor type '${this.type}'`);
+    }
   }
 
   @HostListener("window:resize")
