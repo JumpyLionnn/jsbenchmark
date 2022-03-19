@@ -44,7 +44,7 @@ export class BenchmarkService {
       return true;
     });
 
-    const error = this.loadScript(this.setup);
+    const error = this.loadScript(`"use strict";${this.setup}`);
     if(error !== null){
       this.dialog.open(ErrorAlertComponent, {
         data: {
@@ -75,7 +75,7 @@ export class BenchmarkService {
       if(error)
         results.set(+index, {runTime: 0, amountOfRounds: 0, error});
       else
-        benchmarkScriptSrc += "function benchmark_" + index + "() {" + this.sources[index] + "}";
+        benchmarkScriptSrc += `function benchmark_${index}(){"use strict";${this.sources[index]}}`;
     }
     this.loadScript(benchmarkScriptSrc);
 
