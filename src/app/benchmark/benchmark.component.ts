@@ -20,7 +20,7 @@ export class BenchmarkComponent implements OnInit {
   public selectedIndex = 0;
   private lastCodeBlockId: number = 1;
 
-  public benchmarkResults: BenchmarkResults = new Map();
+  public benchmarkResults: BenchmarkResults = {results: new Map(), time: 0};
 
   @ViewChild("blocks", {static: true})
   private codeBlocks!: MatSelectionList;
@@ -31,7 +31,7 @@ export class BenchmarkComponent implements OnInit {
   }
 
   public onRunClicked(){
-    this.benchmarkResults = this.benchmark.execute(this.iterationCount);
+    this.benchmarkResults = this.benchmark.execute(1000); // hardcoded for now
     this.showResults = true;
     this.benchmark.onResults.emit();
   }
@@ -52,12 +52,12 @@ export class BenchmarkComponent implements OnInit {
       dialogRef.afterClosed().subscribe(result => {
         if(result){ // if the user chose to delete
           // deleteing all of the blocks after the deleted index including because after the update all of the editor after will resubmit their content
-          this.benchmarkResults.delete(this.selectedIndex);
+          this.benchmarkResults.results.delete(this.selectedIndex);
           for(let i = this.selectedIndex; i < this.codeBlocksLabels.length; i++){
             delete this.benchmark.sources[i];
-            if(this.benchmarkResults.has(i)){
-              this.benchmarkResults.set(i - 1, this.benchmarkResults.get(i)!);
-              this.benchmarkResults.delete(i);
+            if(this.benchmarkResults.results.has(i)){
+              this.benchmarkResults.results.set(i - 1, this.benchmarkResults.results.get(i)!);
+              this.benchmarkResults.results.delete(i);
             }
           }
           this.codeBlocksLabels.splice(this.selectedIndex, 1);
@@ -84,7 +84,7 @@ export class BenchmarkComponent implements OnInit {
     option.disableRipple = true;
     const editableSpan = <HTMLSpanElement>option._text.nativeElement.childNodes[0];
     editableSpan.focus();
-    // moving careto to the end
+    // moving caret to the end
     const range = document.createRange()
     const selection = window.getSelection()
     

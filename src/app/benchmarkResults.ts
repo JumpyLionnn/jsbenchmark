@@ -1,2 +1,9 @@
-type BenchmarkResults = Map<number, {average: number, median: number, error?: Error}>;
+interface BenchmarkResults {
+    results: Map<number, {
+        runTime: number;
+        amountOfRounds: number;
+        error?: Error;
+    }>;
+    time: number;
+}
 export default BenchmarkResults;

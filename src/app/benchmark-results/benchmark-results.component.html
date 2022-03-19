@@ -1,14 +1,12 @@
-<div *ngFor="let result of benchmarkResults | keyvalue">
+<h3>total time: {{benchmarkResults.time}}ms</h3>
+<div *ngFor="let result of benchmarkResults.results | keyvalue" class="result">
     <h3>{{labels[result.key].name}}</h3>
-    <div *ngIf="result.value.error == undefined">
+    <div *ngIf="result.value.error == undefined else error">
         <div>
-            <span>Average: {{result.value.average}}s</span>
-        </div>
-        <div>
-            <span>Median: {{result.value.median}}s</span>
+            <span>{{result.value.amountOfRounds}} iterrations/{{result.value.runTime * 0.001}}s</span>
         </div>
     </div>
-    <div *ngIf="result.value.error != undefined">
+    <ng-template #error>
         <mat-accordion>
             <mat-expansion-panel class="error">
                 <mat-expansion-panel-header>
@@ -16,12 +14,11 @@
                         <span class="error-text">ERROR</span>
                     </mat-panel-title>
                     <mat-panel-description>
-                        {{result.value.error.name}}
+                        {{result.value.error!.name}}
                     </mat-panel-description>
                 </mat-expansion-panel-header>
-                <p>{{result.value.error.message}}</p>
+                <p>{{result.value.error!.message}}</p>
             </mat-expansion-panel>
         </mat-accordion>
-    </div>
-
+    </ng-template>
 </div>

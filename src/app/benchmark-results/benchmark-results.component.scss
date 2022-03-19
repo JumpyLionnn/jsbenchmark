@@ -1,8 +1,19 @@
-.error {
-    background-color: #FFF0F0;
-    color: #FF0000;
-}
-
-.error-text {
-    color: #FF0000;
+.result {
+    margin: 1.5rem 0;
+    &:first-child {
+        margin: 0 0 1.5rem 0;
+    }
+    h3 {
+        font-size: 1.5rem;
+    }
+    span {
+        font-size: 1.1rem;
+    }
+    .error {
+        background-color: #FFF0F0;
+        color: #FF0000;
+    }
+    .error-text {
+        color: #FF0000;
+    }
 }

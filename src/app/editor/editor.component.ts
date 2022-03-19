@@ -12,7 +12,7 @@ export class EditorComponent implements OnInit, OnChanges {
   private editor!: monaco.editor.IStandaloneCodeEditor;
 
   public editorOptions = {language: 'javascript', mouseWheelZoom: true, minimap: {enabled: false}, automaticLayout: true};
-  public code: string= 'for(let i = 0; i < 100; i++) {\n    console.log("Hello world!");\n}';
+  public code: string= 'console.log("Hello world!");';
 
   @Input()
   public index!: number;
