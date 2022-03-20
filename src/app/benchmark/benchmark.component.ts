@@ -6,6 +6,8 @@ import { BenchmarkService } from '../benchmark.service';
 import BenchmarkResults from '../benchmarkResults';
 import CodeBlock from '../code-block';
 import { DeleteDialogComponent } from './delete-dialog/delete-dialog.component';
+import { Theme, ThemeService } from '../theme/theme.service';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-benchmark',
@@ -25,9 +27,13 @@ export class BenchmarkComponent implements OnInit {
   @ViewChild("blocks", {static: true})
   private codeBlocks!: MatSelectionList;
 
-  constructor(private benchmark: BenchmarkService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) { }
+  constructor(private benchmark: BenchmarkService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef, private theme: ThemeService) { }
 
   ngOnInit(): void {
+  }
+
+  public isDarkTheme(){
+    return this.theme.current === Theme.Dark;
   }
 
   public onRunClicked(){
@@ -37,6 +43,10 @@ export class BenchmarkComponent implements OnInit {
       this.showResults = true;
       this.benchmark.onResults.emit();
     }
+  }
+
+  public storeThemeSelection(value: MatSlideToggleChange){
+    this.theme.change(value.checked ? Theme.Dark : Theme.Light);
   }
 
   public addCodeBlock(){

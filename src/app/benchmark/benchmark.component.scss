@@ -5,8 +5,14 @@
     max-width: 100%;
     nav {
         margin: 0.5rem 0 0 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         .interation-count-input {
             margin-left: 1rem;
+        }
+        .dark-theme-toggle {
+            margin-right: 1rem;
         }
     }
     .main {

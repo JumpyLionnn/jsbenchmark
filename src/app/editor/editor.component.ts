@@ -2,6 +2,7 @@ import { Component, HostListener, Input, OnChanges, OnInit, ViewEncapsulation } 
 import * as monaco from 'monaco-editor';
 import { BenchmarkService } from '../benchmark.service';
 import { getErrors as getDiagnostics, Severity } from '../jshint';
+import { Theme, ThemeService } from '../theme/theme.service';
 
 
 @Component({
@@ -13,7 +14,14 @@ import { getErrors as getDiagnostics, Severity } from '../jshint';
 export class EditorComponent implements OnInit, OnChanges {
   private editor!: monaco.editor.IStandaloneCodeEditor;
 
-  public editorOptions = {language: 'javascript', mouseWheelZoom: true, minimap: {enabled: false}, automaticLayout: true, glyphMargin: true};
+  public editorOptions = {
+    language: 'javascript', 
+    mouseWheelZoom: true, 
+    minimap: {enabled: false}, 
+    automaticLayout: true, 
+    glyphMargin: true, 
+    theme: this.getTheme()
+  };
   public code: string= 'console.log("Hello world!");';
 
   @Input()
@@ -24,9 +32,12 @@ export class EditorComponent implements OnInit, OnChanges {
 
   private decorations: string[] = [];
 
-  constructor(private benchmark: BenchmarkService) { }
+  constructor(private benchmark: BenchmarkService, private theme: ThemeService) { }
 
   ngOnInit(): void {
+    this.theme.onChange.subscribe((theme) => {
+      this.editorOptions = { ...this.editorOptions, theme: this.getTheme() };
+    });
     monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
       noSyntaxValidation: false,
@@ -85,6 +96,10 @@ export class EditorComponent implements OnInit, OnChanges {
   @HostListener("window:resize")
   public onResize(){
     this.editor.layout({} as monaco.editor.IDimension);
+  }
+
+  private getTheme(){
+    return this.theme.current === Theme.Light ? "vs" : "vs-dark";
   }
 
 }

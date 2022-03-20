@@ -1,10 +1,18 @@
-<div class="container">
+<div class="container mat-app-background" [ngClass]="{'dark-theme-mode': isDarkTheme()}">
     <nav>
-        <button mat-raised-button color="primary" (click)="onRunClicked()">run</button>
-        <mat-form-field appearance="standard" class="interation-count-input">
-            <mat-label>interation count</mat-label>
-            <input matInput placeholder="interation count" [(ngModel)]="iterationCount" type="number" min="1">
-        </mat-form-field>
+        <div>
+            <button mat-raised-button color="primary" (click)="onRunClicked()">run</button>
+            <mat-form-field appearance="standard" class="interation-count-input">
+                <mat-label>interation count</mat-label>
+                <input matInput placeholder="interation count" [(ngModel)]="iterationCount" type="number" min="1">
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-slide-toggle class="dark-theme-toggle" [checked]="isDarkTheme()" labelPosition="before" (change)="storeThemeSelection($event)">
+                <mat-icon>bedtime</mat-icon>
+            </mat-slide-toggle>
+        </div>
+
     </nav>
     <div class="main" [ngClass]="{'resultsShown': showResults}">
         <div class="codeBlocksLabels">

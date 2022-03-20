@@ -17,11 +17,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { BenchmarkResultsComponent } from './benchmark-results/benchmark-results.component';
 import { DeleteDialogComponent } from './benchmark/delete-dialog/delete-dialog.component';
 import { ErrorAlertComponent } from './error-alert/error-alert.component';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { Theme, ThemeService } from './theme/theme.service';
 
 @NgModule({
   declarations: [
@@ -47,9 +50,26 @@ import { ErrorAlertComponent } from './error-alert/error-alert.component';
     MatDividerModule,
     MatListModule,
     MatExpansionModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSlideToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule { 
+  constructor(private theme: ThemeService, private overlayContainer: OverlayContainer) {
+    this.theme.onChange.subscribe((current: Theme) => {
+      this.changeTheme();
+    });
+    this.changeTheme();
+  }
+
+  private changeTheme(){
+    if(this.theme.current === Theme.Light){
+      this.overlayContainer.getContainerElement().classList.remove("dark-theme-mode");
+    }
+    else{
+      this.overlayContainer.getContainerElement().classList.add("dark-theme-mode");
+    }
+  }
+}
