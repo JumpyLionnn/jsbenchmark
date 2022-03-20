@@ -26,7 +26,7 @@ export class BenchmarkService {
     this.setup = source;
   }
 
-  public execute(timePerBlock: number = 1000): BenchmarkResults | null{
+  public execute(timePerBlock: number): BenchmarkResults | null{
     if(this.iframe)
       document.body.removeChild(this.iframe);
     this.iframe = document.createElement('iframe');

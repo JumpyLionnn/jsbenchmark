@@ -15,6 +15,9 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
   @Input()
   public labels!: CodeBlock[];
 
+  @Input()
+  public timePerBlock!: number;
+
   public chartData: {name: string, value: number}[] = [];
 
   // options
@@ -39,7 +42,7 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
       if(!value.error){
         this.chartData.push({
           name: this.labels[key].name,
-          value: value.amountOfRounds
+          value: value.amountOfRounds / (this.timePerBlock * 0.001)
         });
       }
     }
@@ -50,7 +53,7 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
     for (let [key, value] of this.benchmarkResults.results) {
       let percent = 100 - (value.amountOfRounds / max * 100);
       this.benchmarkDisplayResults.set(key, {
-        amountOfRounds: value.amountOfRounds,
+        amountOfRounds: value.amountOfRounds / (this.timePerBlock * 0.001),
         percent: percent,
         fastest: key === maxId || percent < fastestTheshold,
         error: value.error

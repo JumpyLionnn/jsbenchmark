@@ -15,7 +15,8 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
   styleUrls: ['./benchmark.component.scss']
 })
 export class BenchmarkComponent implements OnInit {
-  public iterationCount: number = 10;
+  public timePerBlock: number = 3000;
+
   public showResults: boolean = false;
 
   public codeBlocksLabels: CodeBlock[] = [{name: "code block 1", renaming: false}];
@@ -38,7 +39,7 @@ export class BenchmarkComponent implements OnInit {
   }
 
   public onRunClicked(){
-    const result = this.benchmark.execute(1000); // hardcoded for now
+    const result = this.benchmark.execute(this.timePerBlock);
     if(result !== null){
       this.benchmarkResults = result;
       this.showResults = true;

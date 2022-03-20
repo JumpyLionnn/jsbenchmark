@@ -2,9 +2,9 @@
     <nav>
         <div>
             <button mat-raised-button color="primary" (click)="onRunClicked()">run</button>
-            <mat-form-field appearance="standard" class="interation-count-input">
-                <mat-label>interation count</mat-label>
-                <input matInput placeholder="interation count" [(ngModel)]="iterationCount" type="number" min="1">
+            <mat-form-field appearance="standard" class="setting-input">
+                <mat-label>time per block</mat-label>
+                <input matInput placeholder="time per block" [(ngModel)]="timePerBlock" type="number" min="500">
             </mat-form-field>
         </div>
         <div>
@@ -55,7 +55,7 @@
                 </button>
             </div>
             <div class="results-content">
-                <app-benchmark-results [benchmarkResults]="benchmarkResults" [labels]="codeBlocksLabels"></app-benchmark-results>
+                <app-benchmark-results [benchmarkResults]="benchmarkResults" [labels]="codeBlocksLabels" [timePerBlock]="timePerBlock"></app-benchmark-results>
             </div>
         </div>
     </div>
