@@ -25,6 +25,7 @@ import { DeleteDialogComponent } from './benchmark/delete-dialog/delete-dialog.c
 import { ErrorAlertComponent } from './error-alert/error-alert.component';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { Theme, ThemeService } from './theme/theme.service';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { Theme, ThemeService } from './theme/theme.service';
     AppRoutingModule,
     
     MonacoEditorModule.forRoot(),
+    NgxChartsModule,
 
     MatButtonModule,
     MatFormFieldModule,

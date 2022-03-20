@@ -13,3 +13,10 @@ body {
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+// to add support for dark theme in ngx-charts
+div.container.dark-theme-mode .ngx-charts {
+    text {
+        fill: #fff!important;
+    }
+}
