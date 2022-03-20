@@ -26,6 +26,7 @@ export class BenchmarkComponent implements OnInit {
 
   @ViewChild("blocks", {static: true})
   private codeBlocks!: MatSelectionList;
+  private unmodifiableBlocks: number = 1; // 1 setup code block
 
   constructor(private benchmark: BenchmarkService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef, private theme: ThemeService) { }
 
@@ -62,7 +63,7 @@ export class BenchmarkComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result){ // if the user chose to delete
+      if(result){ // if the user chose to delete it will be true
         // deleteing all of the blocks after the deleted index including because after the update all of the editor after will resubmit their content
         this.benchmarkResults.results.delete(this.selectedIndex);
         for(let i = this.selectedIndex; i < this.codeBlocksLabels.length; i++){
@@ -73,14 +74,15 @@ export class BenchmarkComponent implements OnInit {
           }
         }
         this.codeBlocksLabels.splice(this.selectedIndex, 1);
+        // selecting other block
         if(this.selectedIndex === 0){
-          const option = this.codeBlocks.options.get(1)!;
+          const option = this.codeBlocks.options.get(1 + this.unmodifiableBlocks)!;
           // TODO: on selecting this one it is not marking it as selected in the view
-          this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(1)!);
+          this.codeBlocks.selectedOptions.select(option);
           option.focus();
         }
         else{
-          this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(--this.selectedIndex)!);
+          this.codeBlocks.selectedOptions.select(this.codeBlocks.options.get(--this.selectedIndex + this.unmodifiableBlocks)!);
         }
       }
     });
@@ -91,7 +93,7 @@ export class BenchmarkComponent implements OnInit {
   public renameSelectedCodeBlock(){
     this.codeBlocksLabels[this.selectedIndex].renaming = true;
     this.changeDetector.detectChanges();
-    const option = this.codeBlocks.options.get(this.selectedIndex)!;
+    const option = this.codeBlocks.options.get(this.selectedIndex + this.unmodifiableBlocks)!;
     option.disableRipple = true;
     const editableSpan = <HTMLSpanElement>option._text.nativeElement.childNodes[0];
     editableSpan.focus();
