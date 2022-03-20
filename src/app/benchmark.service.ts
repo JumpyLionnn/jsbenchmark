@@ -35,14 +35,9 @@ export class BenchmarkService {
     document.body.appendChild(this.iframe);
     this.error = null;
 
-
     this.iframeWindow = <Window>this.iframe.contentWindow;
 
-    this.iframeWindow.addEventListener("error", (e) => {
-      this.error = e.error; // for script loading
-      e.preventDefault();
-      return true;
-    });
+    this.iframeWindow.addEventListener("error", this.onError.bind(this));
 
     const error = this.loadScript(`"use strict";${this.setup}`);
     if(error !== null){
@@ -57,7 +52,6 @@ export class BenchmarkService {
     // TODO: add support for libraries and load them here
 
     let results = new Map<number, {
-      runTime: number;
       amountOfRounds: number;
       error?: Error;
     }>();
@@ -65,42 +59,29 @@ export class BenchmarkService {
     let benchmarkScriptSrc = "";
     for (const index in this.sources) {
       // TODO: add a piece of code before each benchmark without including it in the timing 
-      // verfifying that the function is ok
-      let error;
+      // verfifying that the function is ok and doesnt mess ith this source code  
       try {
         new Function(this.sources[index]);
-      } catch (e) {
-        error = this.getError(e);
-      }
-      if(error)
-        results.set(+index, {runTime: 0, amountOfRounds: 0, error});
-      else
         benchmarkScriptSrc += `function benchmark_${index}(){"use strict";${this.sources[index]}}`;
+      } catch (e) {
+        results.set(+index, {amountOfRounds: 0, error: this.getError(e)});
+      }
     }
     this.loadScript(benchmarkScriptSrc);
 
     for (const index in this.sources) {
-      if(results.has(+index)){
-        continue;
-      }
+      if(results.has(+index))
+        continue; // it means this block has an error
       const testResult = this.runTestForAmountOfTime("benchmark_" + index, timePerBlock); 
       results.set(+index, {
-        runTime: testResult.runTime,
         amountOfRounds: testResult.count,
         error: testResult.error
       });
     }
-    const sum: number = Array.from(results.values()).reduce((previousValue, currentValue) => previousValue + currentValue.runTime, 0);
-    return {results, time: sum};
+    return {results};
   }
 
   private loadScript(src: string): Error | null{
-    // verifying script
-    try {
-      new Function(src);
-    } catch (error: any) {
-      return error;
-    }
     const script = document.createElement("script");
     script.type = "text/javascript";
     script.text = src;
@@ -114,21 +95,25 @@ export class BenchmarkService {
   private runTestForAmountOfTime(funcName: string, timePerBlock: number) {
     let count = 0;
     let error;
-    let startTimer = performance.now();
-    let timer = startTimer; // TODO: improve performence, there is a lot of code here that gets counted although it shouldnt
+    let timeSum = 0;
     do {  
       try{
+        const lastTime = performance.now();
         (<any>this.iframeWindow)[funcName]();
+        timeSum += performance.now() - lastTime;
       }
       catch(e: any){
-        // TODO: create a source map for the scripts
         error = this.getError(e);
         break;
       }
       count++;
-      timer = performance.now();
-    } while(timer - startTimer < timePerBlock);
-    return { count: count, runTime: timer - startTimer, error };
+    } while(timeSum < timePerBlock);
+    return { count: count, error };
+  }
+
+  private onError(e: ErrorEvent){
+    this.error = e.error; // for script loading
+    e.preventDefault();
   }
 
   private getError(a: any): Error{

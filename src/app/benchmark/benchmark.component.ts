@@ -22,7 +22,7 @@ export class BenchmarkComponent implements OnInit {
   public selectedIndex = 0;
   private lastCodeBlockId: number = 1;
 
-  public benchmarkResults: BenchmarkResults = {results: new Map(), time: 0};
+  public benchmarkResults: BenchmarkResults = {results: new Map()};
 
   @ViewChild("blocks", {static: true})
   private codeBlocks!: MatSelectionList;

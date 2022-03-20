@@ -50,7 +50,6 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
     for (let [key, value] of this.benchmarkResults.results) {
       let percent = 100 - (value.amountOfRounds / max * 100);
       this.benchmarkDisplayResults.set(key, {
-        runTime: value.runTime,
         amountOfRounds: value.amountOfRounds,
         percent: percent,
         fastest: key === maxId || percent < fastestTheshold,
@@ -69,7 +68,6 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
 }
 
 type BenchmarkDisplayResults = Map<number, {
-      runTime: number;
       amountOfRounds: number;
       percent: number;
       fastest: boolean;
