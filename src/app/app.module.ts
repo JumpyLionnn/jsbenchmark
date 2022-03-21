@@ -10,6 +10,7 @@ import { BenchmarkComponent } from './benchmark/benchmark.component';
 import { BenchmarkResultsComponent } from './benchmark-results/benchmark-results.component';
 import { DeleteDialogComponent } from './benchmark/delete-dialog/delete-dialog.component';
 import { ErrorAlertComponent } from './error-alert/error-alert.component';
+import { ProgressbarComponent } from './progressbar/progressbar.component';
 
 
 import { MatButtonModule } from '@angular/material/button';
@@ -22,6 +23,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { OverlayContainer } from '@angular/cdk/overlay';
@@ -36,7 +38,8 @@ import { Theme, ThemeService } from './theme/theme.service';
     BenchmarkComponent,
     BenchmarkResultsComponent,
     DeleteDialogComponent,
-    ErrorAlertComponent
+    ErrorAlertComponent,
+    ProgressbarComponent
   ],
   imports: [
     BrowserModule,
@@ -56,7 +59,8 @@ import { Theme, ThemeService } from './theme/theme.service';
     MatExpansionModule,
     MatDialogModule,
     MatSlideToggleModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

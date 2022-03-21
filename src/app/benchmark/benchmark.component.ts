@@ -46,7 +46,7 @@ export class BenchmarkComponent implements OnInit {
   }
 
   public async onRunClicked(){
-    const result = await this.benchmark.execute(this.timePerBlock);
+    const result = await this.benchmark.execute(this.timePerBlock, this.codeBlocksLabels);
     if(result !== null){
       this.benchmarkResults = result;
       this.showResults = true;

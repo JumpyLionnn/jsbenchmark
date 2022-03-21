@@ -2,6 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import BenchmarkResults from './benchmarkResults';
 import { ErrorAlertComponent } from './error-alert/error-alert.component';
+import { ProgressbarComponent } from './progressbar/progressbar.component';
 import { waitUntilNextEventCycle } from './utilities';
 
 @Injectable({
@@ -16,6 +17,9 @@ export class BenchmarkService {
   private iframeWindow?: Window;
 
   private error: Error | null = null;
+  private blocksCount: number = 0;
+
+  private progressbarEvent = new EventEmitter<{progress?: number, message?: string, show?: boolean}>();
 
   constructor(private dialog: MatDialog) { }
 
@@ -27,11 +31,21 @@ export class BenchmarkService {
     this.setup = source;
   }
   
-  public async execute(timePerBlock: number): Promise<BenchmarkResults | null>{
-    const startTime = window.performance.now();
+  public async execute(timePerBlock: number, labels: {name: string}[]): Promise<BenchmarkResults | null>{
+    const progressbar = this.dialog.open(ProgressbarComponent, {
+      data: {
+        value: 0,
+        message: "setting up",
+        title: "benchmark",
+        show: false,
+        onUpdate: this.progressbarEvent
+      },
+      width: "50%"
+    });
     if(this.iframe)
       document.body.removeChild(this.iframe);
     this.error = null;
+    this.blocksCount = labels.length;
     this.iframe = document.createElement('iframe');
     this.iframe.style.display = "none";
     this.iframe.id = 'iframe';
@@ -42,8 +56,10 @@ export class BenchmarkService {
     
     await waitUntilNextEventCycle();
 
+    this.progressbarEvent.emit({message: "loading setup script", show: false});
     const error = this.loadScript(`"use strict";${this.setup}`);
     if(error !== null){
+      progressbar.close();
       this.dialog.open(ErrorAlertComponent, {
         data: {
           title: "script loading failed",
@@ -55,7 +71,7 @@ export class BenchmarkService {
     // TODO: add support for libraries and load them here
     
     await waitUntilNextEventCycle();
-
+    this.progressbarEvent.emit({message: "loading code blocks script", show: false});
     let results = new Map<number, {
       amountOfRounds: number;
       error?: Error;
@@ -74,17 +90,17 @@ export class BenchmarkService {
     }
     this.loadScript(benchmarkScriptSrc);
     await waitUntilNextEventCycle();
-
     for (const index in this.sources) {
       if(results.has(+index))
         continue; // it means this block has an error
+      this.progressbarEvent.emit({message: `measuring ${labels[index].name}`});
       const testResult = await this.runTestForAmountOfTime("benchmark_" + index, timePerBlock); 
       results.set(+index, {
         amountOfRounds: testResult.count,
         error: testResult.error
       });
     }
-    console.log("total time:", window.performance.now() - startTime);
+    progressbar.close();
     return {results};
   }
 
@@ -100,15 +116,12 @@ export class BenchmarkService {
   }
 
   private async runTestForAmountOfTime(funcName: string, timePerBlock: number) {
-    let count = 0;
+    let iterationCount = 0;
     let error;
     let timeSum = 0;
     let lastTimeWaited = 0; // for async ability
+    const runtimePerCycle = 30;
     do {
-      if(timeSum > lastTimeWaited + 30){  // 30 is the time in milliseconds it runs it per event cycle
-        lastTimeWaited = timeSum;
-        await waitUntilNextEventCycle();
-      }
       try{
         const lastTime = performance.now();
         (<any>this.iframeWindow)[funcName]();
@@ -118,9 +131,14 @@ export class BenchmarkService {
         error = this.getError(e);
         break;
       }
-      count++;
+      if(timeSum > lastTimeWaited + runtimePerCycle){  // 30 is the time in milliseconds it runs it per event cycle
+        lastTimeWaited = timeSum;
+        this.progressbarEvent.emit({progress: 1 / this.blocksCount * 100 / timePerBlock * runtimePerCycle});
+        await waitUntilNextEventCycle();
+      }
+      iterationCount++;
     } while(timeSum < timePerBlock);
-    return { count: count, error };
+    return { count: iterationCount, error };
   }
 
   private onError(e: ErrorEvent){
