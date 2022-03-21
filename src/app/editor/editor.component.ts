@@ -24,7 +24,7 @@ export class EditorComponent implements OnInit, OnChanges {
   };
 
   @Input()
-  public code: string= "data.splice();";
+  public code: string= "data.slice();";
 
   @Input()
   public type: string = "code";

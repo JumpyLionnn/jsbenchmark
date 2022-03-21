@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import BenchmarkResults from '../benchmarkResults';
 import CodeBlock from '../code-block';
 
@@ -7,16 +7,16 @@ import CodeBlock from '../code-block';
   templateUrl: './benchmark-results.component.html',
   styleUrls: ['./benchmark-results.component.scss']
 })
-export class BenchmarkResultsComponent implements OnInit, OnChanges {
-  @Input()
-  public benchmarkResults!: BenchmarkResults;
+export class BenchmarkResultsComponent implements OnInit {
+  //@Input()
+  public benchmarkResults: BenchmarkResults = {results: new Map()};
   public benchmarkDisplayResults: BenchmarkDisplayResults = new Map();
 
-  @Input()
-  public labels!: CodeBlock[];
+  //@Input()
+  public labels: CodeBlock[] = [];
 
-  @Input()
-  public timePerBlock!: number;
+  //@Input()
+  public timePerBlock: number = 1000;
 
   public chartData: {name: string, value: number}[] = [];
 
@@ -36,7 +36,11 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
   ngOnInit(): void {
   }
 
-  ngOnChanges(): void{
+  public updateResults(benchmarkResults: BenchmarkResults, labels: CodeBlock[], timePerBlock: number): void{
+    this.benchmarkResults = benchmarkResults;
+    this.labels = labels.slice(); // labels.splice to copy it so it wont get updated by reference else it will mess up things on deleting
+    this.timePerBlock = timePerBlock;
+
     this.chartData = [];
     for(let [key, value] of this.benchmarkResults.results){
       if(!value.error){
@@ -59,6 +63,7 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
         error: value.error
       });
     }
+    console.log(this.chartData)
   }
 
   private getBestResult(){
@@ -67,6 +72,11 @@ export class BenchmarkResultsComponent implements OnInit, OnChanges {
       max = value.amountOfRounds > this.benchmarkResults.results.get(max ?? 0)!.amountOfRounds ? key : max;
     }
     return max;
+  }
+
+  @HostListener("window:resize")
+  onResize(){
+    // trigger change detection on resize
   }
 }
 

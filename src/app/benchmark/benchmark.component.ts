@@ -8,6 +8,7 @@ import CodeBlock from '../code-block';
 import { DeleteDialogComponent } from './delete-dialog/delete-dialog.component';
 import { Theme, ThemeService } from '../theme/theme.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { BenchmarkResultsComponent } from '../benchmark-results/benchmark-results.component';
 
 @Component({
   selector: 'app-benchmark',
@@ -15,6 +16,8 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
   styleUrls: ['./benchmark.component.scss']
 })
 export class BenchmarkComponent implements OnInit {
+  public readonly maxCodeBlocks = 15;
+
   public timePerBlock: number = 3000;
 
   public showResults: boolean = false;
@@ -27,6 +30,10 @@ export class BenchmarkComponent implements OnInit {
 
   @ViewChild("blocks", {static: true})
   private codeBlocks!: MatSelectionList;
+
+  @ViewChild("results")
+  private resultsRef!: BenchmarkResultsComponent;
+
   private unmodifiableBlocks: number = 1; // 1 setup code block
 
   constructor(private benchmark: BenchmarkService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef, private theme: ThemeService) { }
@@ -43,7 +50,9 @@ export class BenchmarkComponent implements OnInit {
     if(result !== null){
       this.benchmarkResults = result;
       this.showResults = true;
-      this.benchmark.onResults.emit();
+      this.benchmark.onResults.emit(); // to resize all the editors to fit the new size
+      this.changeDetector.detectChanges(); //  without the change detection the results component ref will be undefined
+      this.resultsRef.updateResults(this.benchmarkResults, this.codeBlocksLabels, this.timePerBlock);
     }
   }
 
@@ -52,7 +61,9 @@ export class BenchmarkComponent implements OnInit {
   }
 
   public addCodeBlock(){
-    this.codeBlocksLabels.splice(++this.selectedIndex, 0, {name: `code block ${++this.lastCodeBlockId}`, renaming: false});
+    if(this.codeBlocksLabels.length < this.maxCodeBlocks){
+      this.codeBlocksLabels.splice(++this.selectedIndex, 0, {name: `code block ${++this.lastCodeBlockId}`, renaming: false});
+    }
   }
 
   public removeSelectedCodeBlock(){
