@@ -22,7 +22,9 @@ export class EditorComponent implements OnInit, OnChanges {
     glyphMargin: true, 
     theme: this.getTheme()
   };
-  public code: string= 'console.log("Hello world!");';
+
+  @Input()
+  public code: string= "data.splice();";
 
   @Input()
   public type: string = "code";
@@ -31,6 +33,8 @@ export class EditorComponent implements OnInit, OnChanges {
   public index!: number;
 
   private decorations: string[] = [];
+
+  private lintTimerId: number | null = null;
 
   constructor(private benchmark: BenchmarkService, private theme: ThemeService) { }
 
@@ -73,16 +77,33 @@ export class EditorComponent implements OnInit, OnChanges {
   }
 
   onValueChanges(value: string){
-    this.checkForErrors();
+    if(this.lintTimerId !== null){
+      clearTimeout(this.lintTimerId);
+    }
+    this.lintTimerId = window.setTimeout(() => {
+      this.checkForErrors();
+    }, 3000); // after every 3 seconds when the user stopped typing it will lint the code
     this.onChange(value);
   }
 
-  // TODO: recude the amount of times this function gets called to reduce performence
   public checkForErrors(){
-    const diagnostics = getDiagnostics(this.editor.getValue());
+    const options = {
+      unused: this.type !== "setup" // some of the identifiers will be used in the code blocks and not in the setup block
+    };
+    let value = this.editor.getValue();
+    let includeErrorsFrom = 0;
+    if(this.type !== "setup"){ 
+      // including the setup block if this one is not setup to prevent un defined errors when using identifiers from the setup block
+      value = `${this.benchmark.setup} \n${value}`;
+      includeErrorsFrom = this.benchmark.setup.split("\n").length;
+    }
+    let diagnostics = getDiagnostics(value, options);
+    // filtering errors from other blocks
+    diagnostics = diagnostics.filter((diagnostic) => diagnostic.startLineNumber > includeErrorsFrom);
+    // setting up the diagnostic decoration
     let newDecorations = diagnostics.map(diagnostic => {
       return {
-        range: new monaco.Range(diagnostic.startLineNumber, 1, diagnostic.startLineNumber, 1),
+        range: new monaco.Range(diagnostic.startLineNumber - includeErrorsFrom, 1, diagnostic.startLineNumber - includeErrorsFrom, 1),
         options: {
           isWholeLine: true,
           glyphMarginClassName: diagnostic.severity === Severity.Error ? 'errorIcon' : 'warningIcon',

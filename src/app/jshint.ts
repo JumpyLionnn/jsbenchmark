@@ -53,7 +53,7 @@ declare interface JSHINTOptions {
     devel: boolean;
 }
 
-const options: JSHINTOptions = {
+const optionsDefault: JSHINTOptions = {
     bitwise: false,
     curly: false,
     eqeqeq: false,
@@ -129,9 +129,13 @@ interface Diagnostic {
     severity: Severity
 }
 
-export function getErrors(source: string | string[]): Diagnostic[]{
-    JSHINT(source, options, {});
-    const errors = JSHINT.data().errors ?? [];
+interface Options {
+    unused?: boolean;
+}
+
+export function getErrors(source: string | string[], options: Options = {}): Diagnostic[]{
+    JSHINT(source, Object.assign({}, optionsDefault, options), {});
+    const errors = JSHINT.errors;
     return errors.map((e: JSHINTError) => {
         return {
           startLineNumber: e.line,
