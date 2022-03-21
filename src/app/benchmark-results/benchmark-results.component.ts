@@ -63,7 +63,6 @@ export class BenchmarkResultsComponent implements OnInit {
         error: value.error
       });
     }
-    console.log(this.chartData)
   }
 
   private getBestResult(){

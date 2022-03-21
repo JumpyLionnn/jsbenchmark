@@ -22,11 +22,16 @@
         grid-template-columns: minmax(150px, 15%) auto 1fr auto;
         .codeBlocksLabels {
             width: max(100%, 150px);
-            .editable {
-                padding: 0.2rem 0 0.2rem 0.2rem;
+            mat-list-option {
                 user-select: none;
-                &[contenteditable=true] {
-                    cursor: text;
+                .editable {
+                    padding: 0.2rem 0 0.2rem 0.2rem;
+                    &[contenteditable=true] {
+                        cursor: text;
+                        outline: 0;
+                        border: 2px solid black;
+                        border-radius: 5px;
+                    }
                 }
             }
         }

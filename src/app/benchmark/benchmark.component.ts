@@ -45,8 +45,8 @@ export class BenchmarkComponent implements OnInit {
     return this.theme.current === Theme.Dark;
   }
 
-  public onRunClicked(){
-    const result = this.benchmark.execute(this.timePerBlock);
+  public async onRunClicked(){
+    const result = await this.benchmark.execute(this.timePerBlock);
     if(result !== null){
       this.benchmarkResults = result;
       this.showResults = true;

@@ -2,6 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import BenchmarkResults from './benchmarkResults';
 import { ErrorAlertComponent } from './error-alert/error-alert.component';
+import { waitUntilNextEventCycle } from './utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -25,19 +26,21 @@ export class BenchmarkService {
   public submitSetup(source: string){
     this.setup = source;
   }
-
-  public execute(timePerBlock: number): BenchmarkResults | null{
+  
+  public async execute(timePerBlock: number): Promise<BenchmarkResults | null>{
+    const startTime = window.performance.now();
     if(this.iframe)
       document.body.removeChild(this.iframe);
+    this.error = null;
     this.iframe = document.createElement('iframe');
     this.iframe.style.display = "none";
     this.iframe.id = 'iframe';
     document.body.appendChild(this.iframe);
-    this.error = null;
 
     this.iframeWindow = <Window>this.iframe.contentWindow;
-
     this.iframeWindow.addEventListener("error", this.onError.bind(this));
+    
+    await waitUntilNextEventCycle();
 
     const error = this.loadScript(`"use strict";${this.setup}`);
     if(error !== null){
@@ -50,6 +53,8 @@ export class BenchmarkService {
       return null;
     }
     // TODO: add support for libraries and load them here
+    
+    await waitUntilNextEventCycle();
 
     let results = new Map<number, {
       amountOfRounds: number;
@@ -68,16 +73,18 @@ export class BenchmarkService {
       }
     }
     this.loadScript(benchmarkScriptSrc);
+    await waitUntilNextEventCycle();
 
     for (const index in this.sources) {
       if(results.has(+index))
         continue; // it means this block has an error
-      const testResult = this.runTestForAmountOfTime("benchmark_" + index, timePerBlock); 
+      const testResult = await this.runTestForAmountOfTime("benchmark_" + index, timePerBlock); 
       results.set(+index, {
         amountOfRounds: testResult.count,
         error: testResult.error
       });
     }
+    console.log("total time:", window.performance.now() - startTime);
     return {results};
   }
 
@@ -92,11 +99,16 @@ export class BenchmarkService {
     return null;
   }
 
-  private runTestForAmountOfTime(funcName: string, timePerBlock: number) {
+  private async runTestForAmountOfTime(funcName: string, timePerBlock: number) {
     let count = 0;
     let error;
     let timeSum = 0;
-    do {  
+    let lastTimeWaited = 0; // for async ability
+    do {
+      if(timeSum > lastTimeWaited + 30){  // 30 is the time in milliseconds it runs it per event cycle
+        lastTimeWaited = timeSum;
+        await waitUntilNextEventCycle();
+      }
       try{
         const lastTime = performance.now();
         (<any>this.iframeWindow)[funcName]();

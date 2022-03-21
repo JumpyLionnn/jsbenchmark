@@ -33,7 +33,7 @@
                 </mat-list-option>
                 <mat-divider class="spaced"></mat-divider>
                 <mat-list-option *ngFor="let label of codeBlocksLabels; index as i;" [value]="i" selected="i == 0" (dblclick)="renameSelectedCodeBlock()">
-                    <span [attr.contenteditable]="label.renaming" (keydown)="onKeyDown($event);" (blur)="submitCodeBlockName($event);" class="editable">{{label.name}}</span>
+                    <div [attr.contenteditable]="label.renaming" (keydown)="onKeyDown($event);" (blur)="submitCodeBlockName($event);" class="editable">{{label.name}}</div>
                 </mat-list-option>
             </mat-selection-list>
         </div>
